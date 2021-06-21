@@ -1,6 +1,6 @@
-#IPvSeeYou Geolocation Lookup Tool
+# IPvSeeYou Geolocation Lookup Tool
 
-##Overview
+## Overview
 
 `IPvSeeYou.py` is a tool to assist with geolocating EUI-64 IPv6 hosts. It 
 
@@ -10,7 +10,7 @@
 1. queries a geolocation API for the predicted BSSID, and 
 1. prints the results (and optionally outputs to KML.)
 
-##Requirements
+## Requirements
 
 `IPvSeeYou.py` is written in and has been tested only using Python3. Installing
 the packages from the `requirements.txt` file using:
@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 
 will ensure you have the required dependencies.
 
-##Usage
+## Usage
 
 `IPvSeeYou.py` is written in Python3 and uses `argparse`, so you can always get
 help by passing the `-h` flag:
@@ -89,7 +89,7 @@ exists.
 `-k/--kml KML` is an optional argument that will generate a KML output file with
 a point for each geolocated EUI-64-derived MAC address. 
 
-###Examples
+### Examples
 
 MAC addresses, username/password and geolocations in this section are for
 example purposes only, and will not provide an actual geolocation or
@@ -115,7 +115,7 @@ WiGLE API, with WiGLE API username `` and password ``, we:
 f8:00:11:22:33:44	f8:00:11:22:33:40	23.45,-12.34
 ```
 
-##Credits
+## Credits
 
 Much of the code that interacts with Apple's Location Services was borrowed from
 @hubert3's excellent [`iSniff-GPS`](https://github.com/hubert3/iSniff-GPS),
