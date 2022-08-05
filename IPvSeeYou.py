@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import logging
 import argparse
 import ipaddress
 import requests
@@ -12,7 +13,7 @@ from urllib3.exceptions import InsecureRequestWarning
 #suppress certificate warnings for hitting Apple's location services API
 #endpoint
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
-
+logging.basicConfig(level=logging.INFO)
 
 def isMAC(s):
     '''
@@ -148,9 +149,9 @@ def getPredictedBSSID(mac, ouiDict):
     oui = getOUI(mac)
 
     if not oui in ouiDict:
-        print(f"Error: {oui} has no WAN-BSSID inferences; can't "+\
+        logging.info(f"{oui} has no WAN-BSSID inferences; can't "+\
                 f"geolocate {mac}")
-        return
+        return None
 
     offset = ouiDict[oui]
 
@@ -203,6 +204,8 @@ def geolocateApple(bssid):
     http://fxaguessy.fr/rapport-pfe-interception-ssl-analyse-donnees-localisation-smartphones/
     '''
 
+    print("Geolocating bssid", bssid)
+
     data_bssid = f"\x12\x13\n\x11{bssid}\x18\x00\x20\01"
     headers = {'Content-Type':'application/x-www-form-urlencoded',
                 'Accept':'*/*', 
@@ -222,7 +225,13 @@ def geolocateApple(bssid):
 
     for wifi in bssidResponse.wifi:
         #Skip any BSSIDs Apple returns that aren't the one we requested
-        if wifi.bssid != bssid:
+        #Need to normalize each MAC byte because the string representation will
+        #strip out leading 0s for some reason. So for e.g., need to turn 
+        # 0:11:22:33:44:55
+        # into 00:11:22:33:44:55
+        checkBSSID = ":".join("0" + x if len(x) == 1 else x for x in
+                wifi.bssid.split(":"))
+        if checkBSSID != bssid:
             continue
         lat = wifi.location.lat * pow(10,-8) 
         lon = wifi.location.lon * pow(10,-8)
@@ -306,8 +315,11 @@ def geolocate(bssid, args):
     @returns: Lat/lon from geolocation (unable to geolocate returns 
     -180.0,-180.0)
     '''
-
     lat, lon = -180.0, -180.0
+
+    #short circuit if there wasn't a valid BSSID guess
+    if not bssid: return lat, lon
+
     if args.apple:
         lat, lon = geolocateApple(bssid)
     elif args.wigle:
